@@ -1,3 +1,5 @@
+package com.tradelize.typedIO;
+
 import java.io.IOException;
 import java.util.Objects;
 
