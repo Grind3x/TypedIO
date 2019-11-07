@@ -3,6 +3,8 @@ package com.tradelize.typedIO;
 import java.io.IOException;
 import java.util.Objects;
 
+import static com.tradelize.typedIO.Type.COMPOSED_OBJECT;
+
 public class ComposedObject {
     private int id;
     private String name;
@@ -25,7 +27,7 @@ public class ComposedObject {
 
     public static void writeObj(TypedOutputStream os, ComposedObject source) throws IOException {
         if (source != null) {
-            os.write(Type.COMPOSED_OBJECT);
+            os.writeByte(COMPOSED_OBJECT);
             os.writeBoolean(false);
             os.writeInt(source.getId());
             os.writeString(source.getName());
@@ -35,15 +37,13 @@ public class ComposedObject {
             os.writeDouble(source.getRate());
             os.writeInt(source.hashCode());
         } else {
-            //mark target object as null
             os.writeBoolean(true);
         }
     }
 
     public static ComposedObject readObj(TypedInputStream is) throws IOException {
-        int type = is.read();
-        if (type == Type.COMPOSED_OBJECT) {
-            //check is source object null
+        byte type = is.readByte();
+        if (type == COMPOSED_OBJECT) {
             if (is.readBoolean()) {
                 return null;
             }
@@ -54,8 +54,7 @@ public class ComposedObject {
             result.setValid(is.readBoolean());
             result.setAmount(is.readLong());
             result.setRate(is.readDouble());
-            int hash = is.readInt();
-            if (hash != result.hashCode()) {
+            if (is.readInt() != result.hashCode()) {
                 throw new IOException("Hash code doesn't match");
             }
             return result;

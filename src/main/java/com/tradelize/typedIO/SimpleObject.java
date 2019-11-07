@@ -3,6 +3,8 @@ package com.tradelize.typedIO;
 import java.io.IOException;
 import java.util.Objects;
 
+import static com.tradelize.typedIO.Type.SIMPLE_OBJECT;
+
 public class SimpleObject {
     private String name;
     private int age;
@@ -18,7 +20,7 @@ public class SimpleObject {
     }
 
     public static void writeObj(TypedOutputStream os, SimpleObject source) throws IOException {
-        os.write(Type.SIMPLE_OBJECT);
+        os.writeByte(SIMPLE_OBJECT);
         if (source != null) {
             os.writeBoolean(false);
             os.writeString(source.getName());
@@ -26,15 +28,12 @@ public class SimpleObject {
             os.writeString(source.getDescription());
             os.writeInt(source.hashCode());
         } else {
-            //mark target object as null
             os.writeBoolean(true);
         }
     }
 
     public static SimpleObject readObj(TypedInputStream is) throws IOException {
-        int type = is.read();
-        if (type == Type.SIMPLE_OBJECT) {
-            //check is source object null
+        if (is.readByte() == SIMPLE_OBJECT) {
             if (is.readBoolean()) {
                 return null;
             }
@@ -42,8 +41,7 @@ public class SimpleObject {
             result.setName(is.readString());
             result.setAge(is.readInt());
             result.setDescription(is.readString());
-            int hash = is.readInt();
-            if (hash != result.hashCode()) {
+            if (is.readInt() != result.hashCode()) {
                 throw new IOException("Hash code doesn't match");
             }
             return result;
